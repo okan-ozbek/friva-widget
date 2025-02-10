@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #D45A22;
+            --secondary-color: #FFFCF7;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif
+        }
+        
+        .widget-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+            background: white;
+            z-index: 1000;
+        }
+
+        .widget-container.collapsed {
+            width: 400px;
+            height: 50px;
+            background: white;
+            cursor: pointer; 
+        }
+
+        .widget-collapsed-content, .widget-footer {
+            display:flex;
+            height: 100%;
+        }
+
+        .widget-collapsed-content img, 
+        .widget-footer img {
+            width: 50px;
+        }
+
+        .widget-collapsed-content .widget-collapsed-text, 
+        .widget-footer .widget-collapsed-text {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0 0 0 1em;
+            font-size: 12px;
+            color: #525252;
+        }
+
+        .widget-collapsed-content .widget-collapsed-text i,
+        .widget-footer .widget-collapsed-text i {
+            padding: 0 1em;
+        }
+
+        .widget-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: white;
+            color: black;
+        }
+
+        .widget-nav img {
+            height: 36px;
+        }
+
+        .widget-container.expanded {
+            width: 400px;
+            /* height: 80vh; */
+        }
+
+        .widget-content {
+            opacity: 0;
+            height: 0;
+            max-height: 80vh;
+            overflow-y: auto;
+            background-color: var(--secondary-color);
+        }
+
+        .widget-container.collapsed .widget-content,
+        .widget-container.expanded .widget-collapsed-content {
+            display: none;
+        }
+
+        .widget-container.expanded .widget-content {
+            opacity: 1;
+            height: auto;
+        }
+
+        .filters .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin: 1em 1.5em 0 1.5em;
+        }
+
+        .filters .input-group label {
+            margin-bottom: 0.5em;
+            font-size: 14px;
+            color: white;
+        }
+
+        .filters .input-group select {
+            width: 100%;
+            padding: 1em 0.5em;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+        }
+
+        .filters .input-group select::placeholder {
+            font-style: italic;
+        }
+
+        .customer-details-form input {
+            width: 100%;
+            padding: 1em 0.5em;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            margin-top: 1em;
+        }
+
+        .widget-body .flex-center {
+            display: flex;
+            justify-content: center;
+            margin-top: 1em;
+        }
+
+        button {
+            padding: 1em 2em;
+            border: 1px solid #e2e8f0;
+            background-color: white;
+            font-weight: bold;
+            
+        }
+
+        button:hover {
+            cursor: pointer;
+        }
+
+        .widget-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .widget-title {
+            margin: 0;
+            font-size: 18px;
+            color: #2d3748;
+        }
+
+        .widget-hero {
+            text-align: center;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2em 0;
+        }
+
+        .widget-hero p {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .widget-hero span {
+            display: block;
+            font-size: 14px;
+        }
+
+        .widget-body {
+            padding: 1em 1.5em;
+        }
+
+        .widget-footer {
+            height: 50px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            display: flex; 
+            color: black;
+            margin-top: 1em;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+        }
+
+        .close-widget {
+            background-color: #3E3E3E;
+            color: #FFFCF7;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="widget-container collapsed" id="widget">
+        <div class="widget-collapsed-content open-widget" onclick="openWidget()">
+            <img src="https://s3-alpha-sig.figma.com/img/3e28/1797/fbefc40c12e8ffe483f3234bff72f433?Expires=1739750400&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=JVG3fIcOR1XfIWP2SAf-GHZMeeD7ijvZ6WjVz-mGcjmHNzxTeVw4fy8cfAXwKgGFl61xq7BsHVunehrqV5sIkkNyBRwkj4ODNWE-vasbCS3MNI0GDhSC8Gd7XzS8s1E68Fy~SVHzpQH0izGwDgf9Fw77yPh1h748kUCMdUWWtVdvGspMqqhvFBiUjKzh9JY2x2xfB3UGmrwMVUflRQJCIw1dX4zFLFflmPkzPiXdBD1ky7ny2q322x7aHsj8zvzP7lxN929WJHaoLWNcX26sw4lHHRoRXe8pTWJq~KQvB6oO2VHL7Y~CGdyxnNLSGF6e2l4KgzIjb4KZ48G5UFThQQ__">
+            <div class="widget-collapsed-text">
+                <i class="fa-regular fa-calendar"></i>
+                <p> BEZICHTING PLANNEN </p>
+
+                <i class="fa-solid fa-ellipsis"></i>
+                <p> OVERIGE DIENSTEN </p>
+            </div>
+        </div>
+
+        <div class="widget-content">
+            <div class="widget-nav">
+                <i onclick="collapseWidget()" class="fa-solid fa-xmark close-widget"></i>
+                <p>Home of Orange</p>
+                <img src="https://s3-alpha-sig.figma.com/img/c137/cbc0/b958dabc4a3567fee0092a59d5ba629c?Expires=1739750400&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=ZFIJSxeI~aJBm8zoWBUOYu2BQcWSwqXG9xO-j~MzPsu6i9GeGrjRm0wR7xLmHMLHA81ht-grmIBhch46CcDiGSJR~OBnSWuPoRaX1IBNd7jVdFj1w8APIZKJmuPx3aihoue77q1WvwA9uBwQqTgpdtQMhI6rqIrH10vt-z-5m~YbWABVddB~CV7NBvASeWV3TmZxjBkn3j3dduTGXNggG~M8SqEvHVrs0q3YIkQcKDkfHYhyFGoXq~V-MSplHGDSk0i7CgTzRyiTM2qS9IYmSex0cd43zMk9DhqxLD8Z4BLYA584UaW3shlCq-4iuHMDX7~wYMCZ0TWj2RxQ3V~I3w__">
+            </div>
+            <div class="widget-hero">
+                <p> Koopwoningen </p>
+                <span> Bezichting plannen </span>
+
+                <div class="filters">
+                    <div class="input-group">
+                        <label for="object-koop"> Object koop </label>
+                        <select>
+                            <option value=""> Selecteer uw koop object... </option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="object-huur"> Object huur </label>
+                        <select>
+                            <option value=""> Selecteer uw huur object... </option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="object-bog"> Object bog </label>
+                        <select>
+                            <option value=""> Selecteer uw bog object... </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="widget-body">
+                <form class="customer-details-form">    
+                    <input type="text" name="naam" placeholder="Uw naam...">
+                    <input type="text" name="email" placeholder="Uw emailadress...">
+                    <input type="text" name="telefoonnummer" placeholder="Uw telefoonnummer...">
+                </form>
+                <div class="flex-center"> 
+                    <button>
+                        Toon opties
+                    </button>
+                </div>
+            </div>
+            
+            <div class="widget-footer" onclick="openWidget()">
+                <img src="https://s3-alpha-sig.figma.com/img/3e28/1797/fbefc40c12e8ffe483f3234bff72f433?Expires=1739750400&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=JVG3fIcOR1XfIWP2SAf-GHZMeeD7ijvZ6WjVz-mGcjmHNzxTeVw4fy8cfAXwKgGFl61xq7BsHVunehrqV5sIkkNyBRwkj4ODNWE-vasbCS3MNI0GDhSC8Gd7XzS8s1E68Fy~SVHzpQH0izGwDgf9Fw77yPh1h748kUCMdUWWtVdvGspMqqhvFBiUjKzh9JY2x2xfB3UGmrwMVUflRQJCIw1dX4zFLFflmPkzPiXdBD1ky7ny2q322x7aHsj8zvzP7lxN929WJHaoLWNcX26sw4lHHRoRXe8pTWJq~KQvB6oO2VHL7Y~CGdyxnNLSGF6e2l4KgzIjb4KZ48G5UFThQQ__">
+                <div class="widget-collapsed-text">
+                    <i class="fa-regular fa-calendar"></i>
+                    <p> BEZICHTING PLANNEN </p>
+    
+                    <i class="fa-solid fa-ellipsis"></i>
+                    <p> OVERIGE DIENSTEN </p>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        const widget = document.getElementById('widget');
+
+        function openWidget() {
+            widget.classList.replace('collapsed', 'expanded');
+        }
+
+        function collapseWidget() {
+            console.log("Reached");
+            widget.classList.replace('expanded', 'collapsed');
+            
+        }
+
+        document.querySelector('.button').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    </script>
+</body>
+</html>
